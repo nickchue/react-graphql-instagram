@@ -10,10 +10,10 @@ class Post extends React.Component {
         <header>
           <div className="Post-user">
             <div className="Post-user-avatar">
-              <img src={this.props.avatar} alt={this.props.name} />
+              <img src={this.props.avatar} alt={this.props.nickname} />
             </div>
             <div className="Post-user-nickname">
-              <span>{this.props.name}</span>
+              <span>{this.props.nickname}</span>
             </div>
           </div>
         </header>
