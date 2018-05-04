@@ -48,7 +48,7 @@ class Posts extends React.Component {
         try {
           const notification = new Notification('React GraphQL Instagram', {
             body: `New post from ${data.post.user.nickname}`,
-            // icon: `https://cdn.pixabay.com/photo/2017/01/10/03/54/icon-1968237_1280.png`,
+            // icon: `https://pixabay.com/get/e83cb7072af7063ed1584d05fb0938c9bd22ffd41cb3144591f4c879a1/icon-1968237_1280.png`,
             // image: `${data.post.image}`,
           })
 
