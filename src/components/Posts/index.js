@@ -28,6 +28,9 @@ class Posts extends React.Component {
   }
 
   componentDidMount() {
+    // request browser notificaion permission
+    Notification.requestPermission();
+
     this.props.apollo_client
       .query({
         query: GET_ALL_POSTS
@@ -40,6 +43,23 @@ class Posts extends React.Component {
 
     this.posts_channel.bind('new-post', data => {
       this.setState({ posts: this.state.posts.concat(data.post) });
+
+      if(Notification.permission === 'granted') {
+        try {
+          const notification = new Notification('React GraphQL Instagram', {
+            body: `New post from ${data.post.user.nickname}`,
+            // icon: `https://cdn.pixabay.com/photo/2017/01/10/03/54/icon-1968237_1280.png`,
+            // image: `${data.post.image}`,
+          })
+
+          // Open the URL when click on the notification
+          notification.onclick = (e) => {
+            window.open('http://localhost:3000','_blank');
+          }
+        } catch(err) {
+          console.log('err.message');
+        }
+      }
     }, this);
   }
 
@@ -47,15 +67,19 @@ class Posts extends React.Component {
     return (
       <div className="Posts">
         {
-          this.state.posts.map(post =>
-            <Post
-              key={post.id}
-              nickname={post.user.nickname}
-              avatar={post.user.avatar}
-              image={post.image}
-              image_alt={post.image_alt}
-              description={post.description}
-            />
+          this.state.posts
+            .slice(0)
+            .reverse()
+            .map(post => (
+              <Post
+                key={post.id}
+                nickname={post.user.nickname}
+                avatar={post.user.avatar}
+                image={post.image}
+                image_alt={post.image_alt}
+                description={post.description}
+              />
+            )
           )
         }
       </div>

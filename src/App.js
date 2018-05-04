@@ -9,6 +9,15 @@ const client = new ApolloClient({
 });
 
 class App extends React.Component {
+  componentDidMount() {
+    // To Check support notification or not
+    // if ('actions' in Notification.prototype) {
+    //   alert('You can enjoy the notification feature');
+    // } else {
+    //   alert('Sorry notifications are NOT supported on your browser');
+    // }
+  }
+
   render() {
     return (
       <ApolloProvider client={client}>
