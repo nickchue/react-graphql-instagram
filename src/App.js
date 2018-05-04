@@ -15,7 +15,7 @@ class App extends React.Component {
         <div className="App">
           <Header />
           <section className="App-main">
-            <Posts />
+            <Posts pusher={this.props.pusher} apollo_client={client} />
           </section>
         </div>
       </ApolloProvider>

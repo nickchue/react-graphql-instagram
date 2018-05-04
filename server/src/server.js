@@ -2,8 +2,14 @@ import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import { buildSchema } from 'graphql';
 import cors from 'cors';
+import Pusher from 'pusher';
+import bodyParser from 'body-parser';
+import Multipart from 'connect-multiparty';
+import dotenv from 'dotenv';
 
-let schema = buildSchema(`
+dotenv.load();
+
+const schema = buildSchema(`
   type User {
     id: Int!
     nickname: String!
@@ -23,14 +29,14 @@ let schema = buildSchema(`
   }
 `);
 
-let usersList = {
+const usersList = {
   1: {
     id: 1,
     nickname: "Nick Chue",
     avatar: "https://cdn.pixabay.com/photo/2016/03/31/19/58/avatar-1295429_960_720.png"
   },
 };
-let postsList = {
+const postsList = {
   1: {
     1: {
       id: 1,
@@ -49,7 +55,7 @@ let postsList = {
   }
 };
 
-let root = {
+const root = {
   getUser: ({ id }) => {
     return usersList[id]
   },
@@ -61,7 +67,17 @@ let root = {
   }
 }
 
-let app = express();
+console.log(process.env.PUSHER_APP_ID);
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_APP_KEY,
+  secret: process.env.PUSHER_APP_SECRET,
+  cluster: process.env.PUSHER_CLUSTER,
+  encrypted: process.env.PUSHER_ENCRYPTED
+});
+
+const app = express();
 app.use(cors());
 app.use(
   '/graphql',
@@ -71,5 +87,25 @@ app.use(
     graphiql: true
   })
 );
+
+const multipartMiddleware = new Multipart();
+
+app.post('/new-post', multipartMiddleware, (req, res) => {
+  const post = {
+    user : {
+      nickname: req.body.nickname,
+      avatar: req.body.avatar
+    },
+    image: req.body.image,
+    image_alt: req.body.image_alt,
+    caption: req.body.caption
+  }
+
+  pusher.trigger('post-channel', 'new-post', {
+    post
+  });
+
+  return res.json({ status: 'Post created' })
+});
 
 app.listen(4000);

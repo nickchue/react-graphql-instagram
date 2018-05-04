@@ -1,6 +1,5 @@
 import React from 'react';
 import './Posts.css';
-import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import Post from '../Post';
 
@@ -19,36 +18,49 @@ const GET_ALL_POSTS = gql`
   }
 `;
 
-const Posts = () => {
-  return (
-    <Query
-      query={GET_ALL_POSTS}
-    >
-      {
-        ({loading, error, data}) => {
-          if (loading) return "Loading...";
-          if (error) return `Error! ${error.message}`;
+class Posts extends React.Component {
+  constructor() {
+    super();
 
-          return (
-            <div className="Posts">
-              {
-                data.getPosts.map(post =>
-                  <Post
-                    key={post.id}
-                    nickname={post.user.nickname}
-                    avatar={post.user.avatar}
-                    image={post.image}
-                    image_alt={post.image_alt}
-                    description={post.description}
-                  />
-                )
-              }
-            </div>
+    this.state = {
+      posts: []
+    }
+  }
+
+  componentDidMount() {
+    this.props.apollo_client
+      .query({
+        query: GET_ALL_POSTS
+      })
+      .then(response => {
+        this.setState({ posts: response.data.getPosts })
+      });
+
+    this.posts_channel = this.props.pusher.subscribe('posts-channel');
+
+    this.posts_channel.bind('new-post', data => {
+      this.setState({ posts: this.state.posts.concat(data.post) });
+    }, this);
+  }
+
+  render() {
+    return (
+      <div className="Posts">
+        {
+          this.state.posts.map(post =>
+            <Post
+              key={post.id}
+              nickname={post.user.nickname}
+              avatar={post.user.avatar}
+              image={post.image}
+              image_alt={post.image_alt}
+              description={post.description}
+            />
           )
         }
-      }
-    </Query>
-  );
+      </div>
+    );
+  }
 }
 
 export default Posts;
