@@ -22,6 +22,7 @@ server/.babelrc
 .env
 server/.env
 .eslintrc.json
+.vscode
 
 npm-debug.log*
 yarn-debug.log*
